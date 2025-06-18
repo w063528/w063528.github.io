@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>고양이 음수량 계산기</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    input {
+      margin: 5px 0;
+      padding: 8px;
+      width: 100%;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      margin-top: 10px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h2>고양이 음수량 계산기</h2>
+  <p>경과 시간을 <strong>HHMM 형식</strong>으로 입력하세요. 예: 1830 → 18시간 30분</p>
+
+  <label for="hhmm">경과 시간 (HHMM):</label>
+  <input type="text" id="hhmm" placeholder="예: 1830" />
+
+  <label for="water1">물 1 줄어든 양 (mL):</label>
+  <input type="number" id="water1" placeholder="예: 100" />
+
+  <label for="water2">물 2 줄어든 양 (mL):</label>
+  <input type="number" id="water2" placeholder="예: 70" />
+
+  <label for="water3">물 3 줄어든 양 (mL):</label>
+  <input type="number" id="water3" placeholder="예: 50" />
+
+  <button onclick="calculate()">계산하기</button>
+
+  <div id="result"></div>
+
+  <script>
+    function calculate() {
+      const hhmmRaw = document.getElementById("hhmm").value.trim();
+      if (!/^\d{3,4}$/.test(hhmmRaw)) {
+        document.getElementById("result").innerText = "경과 시간을 HHMM 형식으로 입력해주세요.";
+        return;
+      }
+
+      const hhmmStr = hhmmRaw.padStart(4, '0');
+      const hours = parseInt(hhmmStr.slice(0, 2), 10);
+      const minutes = parseInt(hhmmStr.slice(2), 10);
+      const totalTime = hours + minutes / 60;
+
+      const water1 = parseFloat(document.getElementById("water1").value) || 0;
+      const water2 = parseFloat(document.getElementById("water2").value) || 0;
+      const water3 = parseFloat(document.getElementById("water3").value) || 0;
+
+      const bowlInputs = [water1, water2, water3];
+      const validWaters = bowlInputs.filter(val => val > 0);
+      const totalLoss = validWaters.reduce((sum, val) => sum + val, 0);
+      const bowlCount = validWaters.length;
+
+      if (totalTime <= 0 || bowlCount === 0 || totalLoss <= 0) {
+        document.getElementById("result").innerText =
+          "시간과 물 줄어든 양을 올바르게 입력해주세요.";
+        return;
+      }
+
+      const evapPerBowlPerHour = 14.4 / 19; // mL/h
+      const totalEvap = evapPerBowlPerHour * totalTime * bowlCount;
+      const drinkAmount = totalLoss - totalEvap;
+      const final = Math.max(0, Math.round(drinkAmount * 10) / 10);
+
+      document.getElementById("result").innerText =
+        `고양이가 마신 물의 양은 약 ${final}mL 입니다.`;
+    }
+  </script>
+</body>
+</html>
